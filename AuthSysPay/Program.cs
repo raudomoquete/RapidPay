@@ -34,6 +34,8 @@ builder.Services.AddAuthentication()
         };
     });
 
+builder.Services.AddTransient<SeedDB>();
+
 builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 {
     cfg.SignIn.RequireConfirmedEmail = false;

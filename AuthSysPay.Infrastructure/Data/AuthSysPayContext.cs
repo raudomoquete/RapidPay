@@ -14,7 +14,7 @@ namespace AuthSysPay.Infrastructure
         {        
         }
 
-        //public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Card> Cards { get; set; }
 
     }
 }
