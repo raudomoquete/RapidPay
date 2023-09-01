@@ -50,6 +50,7 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 //Dependencies
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddTransient<ICardService, CardService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
 var app = builder.Build();
