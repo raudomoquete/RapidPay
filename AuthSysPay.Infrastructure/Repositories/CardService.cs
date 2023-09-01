@@ -26,7 +26,8 @@ namespace AuthSysPay.Infrastructure
         public async Task Pay(Card card, decimal amount)
         {
             var tmpCard = await _unitOfWork.CardRepository.GetById(card.Id);
-            tmpCard.Balance -= amount;
+            var fee = UniversalFeesExchange.Instance.GetCurrentFee();
+            tmpCard.Balance -= amount + fee;
             _unitOfWork.CardRepository.Update(tmpCard);
             await _unitOfWork.SaveChagesAsync();
         }
