@@ -20,64 +20,67 @@ namespace AuthSysPay.Api.Controllers
         }
 
         [HttpPost("login")]
-        public ActionResult<object> Authenticate([FromBody] AuthRequest login)
+        public IActionResult Authenticate([FromBody] AuthRequest login)
         {
-            var loginResponse = new AuthResponse { };
-            AuthRequest loginrequest = new()
+            if (login == null)
             {
-                UserName = login.UserName.ToLower(),
-                Password = login.Password
-            };
-
-            bool isUsernamePasswordValid = false;
-
-            if (login != null)
-            {
-                // make await call to the Database to check username and password. here we only checking if password value is admin
-                isUsernamePasswordValid = loginrequest.Password == "admin" ? true : false;
+                return BadRequest("Invalid request data");
             }
-            // if credentials are valid
+
+            var isUsernamePasswordValid = (login.UserName.ToLower() == "testuser@email.com" && login.Password == "test1234");
+
             if (isUsernamePasswordValid)
             {
-                string token = CreateToken(loginrequest.UserName);
-
-                loginResponse.Token = token;
-                loginResponse.responseMsg = new HttpResponseMessage()
+                var result = (CreatedResult)CreateToken(login);
+                String token = ((dynamic)result.Value).token;
+                var loginResponse = new AuthResponse
                 {
-                    StatusCode = HttpStatusCode.OK
+                    Token = token,
+                    responseMsg = new HttpResponseMessage(HttpStatusCode.OK)
                 };
 
-                //return the token
                 return Ok(new { loginResponse });
             }
             else
             {
-                // if username/password are not valid send unauthorized status code in response               
                 return BadRequest("Username or Password Invalid!");
             }
         }
 
-        private string CreateToken(string username)
+        [HttpPost]
+        private IActionResult CreateToken([FromBody] AuthRequest model)
         {
+            if (model == null)
+            {
+                return BadRequest("Invalid request data");
+            }
 
-            List<Claim> claims = new()
-            {                    
-                //list of Claims - only checking username - more claims can be added.
-                new Claim("username", Convert.ToString(username)),
+            var user = new User();
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, model.UserName!),
+                new Claim(ClaimTypes.Role, "Aministrator"),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
-            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]!));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddHours(2),
-                signingCredentials: cred
+                expires: DateTime.UtcNow.AddDays(30),
+                signingCredentials: credentials
             );
 
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            var results = new
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(token)
+            };
 
-            return jwt;
+            return Created(string.Empty, results);
         }
+
+
 
     }
 }
