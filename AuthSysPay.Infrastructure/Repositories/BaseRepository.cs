@@ -21,25 +21,6 @@ namespace AuthSysPay.Infrastructure
             await _entities.AddAsync(entity);
         }
 
-        //public AuthResponse Authenticate(AuthRequest model)
-        //{
-        //    var user = _entities.FirstOrDefaultAsync(x => x.UserName == model.UserName &&
-        //                                                          x.Password  == model.Password);
-        //    if (user == null)
-        //    {
-        //        return null;
-        //    }
-
-        //    var token = generateJwtToken(user);
-
-        //    return new AuthResponse(user, token);
-        //}
-
-        //private string generateJwtToken(User user)
-        //{
-        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes)
-        //}
-
         public IEnumerable<T> GetAll()
         {
             return _entities.AsEnumerable();

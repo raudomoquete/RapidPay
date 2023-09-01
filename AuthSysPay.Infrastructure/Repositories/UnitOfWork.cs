@@ -5,11 +5,14 @@ namespace AuthSysPay.Infrastructure
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AuthSysPayContext _context;
+        private readonly IRepository<Card> _cardRepository;
 
         public UnitOfWork(AuthSysPayContext context)
         {
             _context = context;
         }
+
+        public IRepository<Card> CardRepository => _cardRepository ?? new BaseRepository<Card>(_context);
 
         public void Dispose()
         {
@@ -19,12 +22,12 @@ namespace AuthSysPay.Infrastructure
             }
         }
 
-        public void SaveChanges()
+        public void SaveChages()
         {
             _context.SaveChanges();
         }
 
-        public async Task SaveChangesAsync()
+        public async Task SaveChagesAsync()
         {
             await _context.SaveChangesAsync();
         }
