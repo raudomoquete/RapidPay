@@ -1,4 +1,5 @@
 ﻿using AuthSysPay.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ namespace AuthSysPay.Api.Controllers
             _cardService = cardService;
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         public async Task<IActionResult> CreateCard([FromBody] Card card)
         {
@@ -22,6 +24,7 @@ namespace AuthSysPay.Api.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBalance(int id)
         {
@@ -30,6 +33,7 @@ namespace AuthSysPay.Api.Controllers
             return Ok(balance);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("{id}/pay")]
         public async Task<IActionResult> Pay(int id, [FromBody] decimal amount)
         {
