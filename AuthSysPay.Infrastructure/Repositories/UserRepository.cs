@@ -12,11 +12,13 @@ namespace AuthSysPay.Infrastructure
         private readonly SignInManager<User> _signInManager;
 
         public UserRepository(
-               AuthSysPayContext context, 
+               AuthSysPayContext context,
+               UserManager<User> userManager,
                RoleManager<IdentityRole> roleManager, 
                SignInManager<User> signInManager)
         {
             _context = context;
+            _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
         }
@@ -73,6 +75,16 @@ namespace AuthSysPay.Infrastructure
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
+        {
+            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
         }
     }
 }

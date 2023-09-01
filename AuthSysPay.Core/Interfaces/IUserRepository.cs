@@ -16,6 +16,10 @@ namespace AuthSysPay.Core
 
         Task<bool> IsUserInRoleAsync(User user, string roleName);
 
+        Task<string> GenerateEmailConfirmationTokenAsync(User user);
+
+        Task<IdentityResult> ConfirmEmailAsync(User user, string token);
+
         Task<SignInResult> LoginAsync(AuthRequest model);
 
         Task LogoutAsync();
