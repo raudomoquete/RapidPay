@@ -2,6 +2,9 @@ using AuthSysPay.Core;
 using AuthSysPay.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +23,17 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AuthSysPayContext>(x => x.UseSqlServer("name=AuthSysPayConnection"));
 
+builder.Services.AddAuthentication()
+    .AddJwtBearer(cfg =>
+    {
+        cfg.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = builder.Configuration["Tokens:Issuer"],
+            ValidAudience = builder.Configuration["Tokens:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Tokens:key"]))
+        };
+    });
+
 builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 {
     cfg.SignIn.RequireConfirmedEmail = false;
@@ -33,6 +47,7 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 
 //Dependencies
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
 var app = builder.Build();
