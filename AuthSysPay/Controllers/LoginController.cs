@@ -13,23 +13,26 @@ namespace AuthSysPay.Api.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly IUserRepository _userRepository;
 
-        public LoginController(IConfiguration configuration)
+        public LoginController(IConfiguration configuration, IUserRepository userRepository)
         {
             _configuration = configuration;
+            _userRepository = userRepository;
         }
 
         [HttpPost("login")]
-        public IActionResult Authenticate([FromBody] AuthRequest login)
+        public async Task <IActionResult> Login([FromBody] AuthRequest login)
         {
             if (login == null)
             {
                 return BadRequest("Invalid request data");
             }
 
-            var isUsernamePasswordValid = (login.UserName.ToLower() == "testuser@email.com" && login.Password == "test1234");
+            var tmpResult = await _userRepository.LoginAsync(login);
+         
 
-            if (isUsernamePasswordValid)
+            if (tmpResult.Succeeded)
             {
                 var result = (CreatedResult)CreateToken(login);
                 String token = ((dynamic)result.Value).token;

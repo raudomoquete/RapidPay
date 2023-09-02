@@ -47,9 +47,12 @@ namespace AuthSysPay.Infrastructure
             return await _userManager.FindByEmailAsync(email);
         }
 
-
         public async Task<IdentityResult> AddUserAsync(User user, string password)
         {
+
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+        
             return await _userManager.CreateAsync(user, password);
         }
 

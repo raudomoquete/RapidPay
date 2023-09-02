@@ -26,14 +26,14 @@ namespace AuthSysPay.Infrastructure
         {
             await _userRepository.CheckRoleAsync("Administrator");
         }
-        private async Task CheckAdministratorAsync(User user)
-        {
-            if (!_context.Users.Any())
-            {
-                _context.Users.Add(new User());
-                await _context.SaveChangesAsync();
-            }
-        }
+        //private async Task CheckAdministratorAsync(User user)
+        //{
+        //    if (!_context.Users.Any())
+        //    {
+        //        _context.Users.Add(new User());
+        //        await _context.SaveChangesAsync();
+        //    }
+        //}
 
         private async Task<User> CheckUserAsync(string firstName, string lastName, string email, string role)
         {

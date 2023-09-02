@@ -22,7 +22,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sales API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthPaySystem API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = @"JWT Authorization header using the Bearer scheme. <br /> <br />
@@ -52,9 +52,14 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDbContext<AuthSysPayContext>(x => x.UseSqlServer("name=AuthSysPayConnection"));
+builder.Services.AddDbContext<AuthSysPayContext>(cfg =>
+{
+    cfg.UseSqlServer(builder.Configuration.GetConnectionString("AuthSysPayConnection"));
+});
+
 
 builder.Services.AddAuthentication()
+    .AddCookie()
     .AddJwtBearer(cfg =>
     {
         cfg.TokenValidationParameters = new TokenValidationParameters
@@ -81,7 +86,7 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 //Dependencies
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddTransient<ICardService, CardService>();
+//builder.Services.AddTransient<ICardService, CardService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
 var app = builder.Build();
