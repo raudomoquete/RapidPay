@@ -1,6 +1,8 @@
 ﻿using AuthSysPay.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace AuthSysPay.Infrastructure
 {
@@ -23,18 +25,6 @@ namespace AuthSysPay.Infrastructure
             _signInManager = signInManager;
         }
 
-        public async Task CheckRoleAsync(string roleName)
-        {
-            var roleExists = await _roleManager.RoleExistsAsync(roleName);
-            if (!roleExists)
-            {
-                await _roleManager.CreateAsync(new IdentityRole
-                {
-                    Name = roleName
-                });
-            }
-        }
-
         public async Task<IEnumerable<User>> GetUsers()
         {
             var users = await _context.Users.ToListAsync();
@@ -50,15 +40,24 @@ namespace AuthSysPay.Infrastructure
         public async Task<IdentityResult> AddUserAsync(User user, string password)
         {
 
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-        
             return await _userManager.CreateAsync(user, password);
         }
 
         public async Task AddUserToRoleAsync(User user, string roleName)
         {
             await _userManager.AddToRoleAsync(user, roleName);
+        }
+
+        public async Task CheckRoleAsync(string roleName)
+        {
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+            if (!roleExists)
+            {
+                await _roleManager.CreateAsync(new IdentityRole
+                {
+                    Name = roleName
+                });
+            }
         }
 
         public async Task<bool> IsUserInRoleAsync(User user, string roleName)

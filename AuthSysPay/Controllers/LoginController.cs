@@ -21,7 +21,7 @@ namespace AuthSysPay.Api.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task <IActionResult> Login([FromBody] AuthRequest login)
         {
             if (login == null)
@@ -30,19 +30,15 @@ namespace AuthSysPay.Api.Controllers
             }
 
             var tmpResult = await _userRepository.LoginAsync(login);
-         
 
             if (tmpResult.Succeeded)
             {
-                var result = (CreatedResult)CreateToken(login);
-                String token = ((dynamic)result.Value).token;
-                var loginResponse = new AuthResponse
-                {
-                    Token = token,
-                    responseMsg = new HttpResponseMessage(HttpStatusCode.OK)
-                };
 
-                return Ok(new { loginResponse });
+                var user = await _userRepository.GetUserByEmailAsync(login.UserName);
+                var token = CreateToken(user);
+
+
+                return Ok(new { Token = token });
             }
             else
             {
@@ -50,40 +46,31 @@ namespace AuthSysPay.Api.Controllers
             }
         }
 
-        [HttpPost]
-        private IActionResult CreateToken([FromBody] AuthRequest model)
+       
+        private TmpToken CreateToken(User user)
         {
-            if (model == null)
-            {
-                return BadRequest("Invalid request data");
-            }
-
-            var user = new User();
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, model.UserName!),
+                new Claim(ClaimTypes.Name, user.UserName!),
                 new Claim(ClaimTypes.Role, "Aministrator"),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-
             };
 
+            var tokenHandler = new JwtSecurityTokenHandler();
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]!));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expiration = DateTime.UtcNow.AddDays(30);
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(30),
+                expires: expiration,
                 signingCredentials: credentials
             );
 
-            var results = new
+            return new TmpToken
             {
-                token = new JwtSecurityTokenHandler().WriteToken(token)
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiration = expiration,
             };
-
-            return Created(string.Empty, results);
         }
-
-
-
     }
 }

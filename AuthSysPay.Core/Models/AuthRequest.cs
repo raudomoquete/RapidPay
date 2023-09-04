@@ -1,15 +1,17 @@
-﻿namespace AuthSysPay.Core
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AuthSysPay.Core
 {
     public class AuthRequest
     {
-        public AuthRequest()
-        {
-            this.UserName = String.Empty;
-            this.Password = String.Empty;
-        }
-
+        [Required]
+        [EmailAddress]
         public string UserName { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
+
         public bool RememberMe { get; set; }
     }
 }

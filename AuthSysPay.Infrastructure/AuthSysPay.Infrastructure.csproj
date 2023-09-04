@@ -24,4 +24,8 @@
     <ProjectReference Include="..\AuthSysPay.Core\AuthSysPay.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>
