@@ -6,9 +6,6 @@ namespace AuthSysPay.Infrastructure
 {
     public class AuthSysPayContext : IdentityDbContext<User>
     {
-        //public AuthSysPayContext()
-        //{
-        //}
 
         public AuthSysPayContext(DbContextOptions<AuthSysPayContext> options) : base(options)
         {        
